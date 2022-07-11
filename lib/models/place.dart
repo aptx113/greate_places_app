@@ -8,7 +8,7 @@ class Place {
       required this.image});
   final String id;
   final String title;
-  final PlaceLocation location;
+  final PlaceLocation? location;
   final File image;
 }
 
