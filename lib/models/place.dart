@@ -10,6 +10,15 @@ class Place {
   final String title;
   final PlaceLocation? location;
   final File image;
+
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'title': title, 'image': image.path};
+  }
+
+  @override
+  String toString() {
+    return 'Place(id: $id, title: $title, image: ${image.path})';
+  }
 }
 
 class PlaceLocation {

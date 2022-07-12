@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:great_places_app/helpers/db_helper.dart';
 import 'package:great_places_app/models/place.dart';
 
 class GreatPlaces with ChangeNotifier {
@@ -17,6 +18,13 @@ class GreatPlaces with ChangeNotifier {
         location: null,
         image: pickedImage);
     _items.add(newPlace);
+    notifyListeners();
+    DBHelper.insert('user_places', newPlace);
+  }
+
+  Future<void> fetchPlaces() async {
+    final dataList = await DBHelper.getData(DBHelper.placesTable);
+    _items = dataList;
     notifyListeners();
   }
 }

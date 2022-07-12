@@ -28,10 +28,10 @@ class _ImageInputWidgetState extends State<ImageInputWidget> {
       return;
     }
     setState(() {
-      _storedImage = File((imageFile as XFile).path);
+      _storedImage = File((imageFile).path);
     });
     final appDir = await syspaths.getApplicationDocumentsDirectory();
-    final fileName = path.basename((imageFile as XFile).path);
+    final fileName = path.basename((imageFile).path);
     final saveImage =
         await File((imageFile).path).copy('${appDir.path}/$fileName');
 
