@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:great_places_app/helpers/db_helper.dart';
+import 'package:great_places_app/helpers/location_helper.dart';
 import 'package:great_places_app/models/place.dart';
 
 class GreatPlaces with ChangeNotifier {
@@ -11,11 +12,22 @@ class GreatPlaces with ChangeNotifier {
     return [..._items];
   }
 
-  void addPlace(String pickedTitle, File pickedImage) {
+  Place findPlaceById(String id) {
+    return _items.firstWhere((place) => place.id == id);
+  }
+
+  Future<void> addPlace(String pickedTitle, File pickedImage,
+      PlaceLocation pickedLocation) async {
+    final address = await LocationHelper.getPlaceAddress(
+        pickedLocation.latitude, pickedLocation.longitude);
+    final updatedLocation = PlaceLocation(
+        latitude: pickedLocation.latitude,
+        longitude: pickedLocation.longitude,
+        address: address);
     final newPlace = Place(
         id: DateTime.now().toString(),
         title: pickedTitle,
-        location: null,
+        location: updatedLocation,
         image: pickedImage);
     _items.add(newPlace);
     notifyListeners();

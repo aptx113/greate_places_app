@@ -1,10 +1,17 @@
+import 'dart:developer';
+
+import 'package:fimber/fimber.dart';
 import 'package:flutter/material.dart';
-import 'package:great_places_app/helpers/location_helper.dart';
-import 'package:great_places_app/screens/map_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:logging/logging.dart';
+
+import '../helpers/location_helper.dart';
+import '../screens/map_screen.dart';
 
 class LocationInputWidget extends StatefulWidget {
-  const LocationInputWidget({Key? key}) : super(key: key);
+  const LocationInputWidget(this.onSelectPlace, {Key? key}) : super(key: key);
+  final Function onSelectPlace;
 
   @override
   State<LocationInputWidget> createState() => _LocationInputWidgetState();
@@ -13,18 +20,27 @@ class LocationInputWidget extends StatefulWidget {
 class _LocationInputWidgetState extends State<LocationInputWidget> {
   String? _previewImageUrl;
 
-  Future<void> _getcurrentUserLocation() async {
-    final locationData = await Location().getLocation();
-    final staticMapImageUrl = LocationHelper.generateLocationPreviewImage(
-        latitude: locationData.latitude ?? 0.0,
-        longitude: locationData.longitude ?? 0.0);
+  void _showPreview(double lat, double lng) {
+    final staticMapUrl = LocationHelper.generateLocationPreviewImage(
+        latitude: lat, longitude: lng);
     setState(() {
-      _previewImageUrl = staticMapImageUrl;
+      _previewImageUrl = staticMapUrl;
     });
   }
 
+  Future<void> _getcurrentUserLocation() async {
+    try {
+      final locationData = await Location().getLocation();
+      _showPreview(
+          locationData.latitude as double, locationData.longitude as double);
+      widget.onSelectPlace(locationData.latitude, locationData.longitude);
+    } catch (e) {
+      return;
+    }
+  }
+
   Future<void> _selectOnMap() async {
-    final selectedLocation = await Navigator.of(context).push(
+    final LatLng? selectedLocation = await Navigator.of(context).push<LatLng>(
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (context) => const MapScreen(
@@ -35,6 +51,11 @@ class _LocationInputWidgetState extends State<LocationInputWidget> {
     if (selectedLocation == null) {
       return;
     }
+    _showPreview(selectedLocation.latitude, selectedLocation.longitude);
+    widget.onSelectPlace(selectedLocation.latitude, selectedLocation.longitude);
+    Logger("${_LocationInputWidgetState().runtimeType}")
+        .info('${selectedLocation.latitude}');
+    Fimber.d('${selectedLocation.latitude}');
   }
 
   @override
